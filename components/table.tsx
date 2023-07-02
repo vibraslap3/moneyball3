@@ -1,28 +1,28 @@
-import { db, UsersTable } from '@/lib/drizzle';
+import { sql } from '@vercel/postgres';
 import { timeAgo } from '@/lib/utils';
 import Image from 'next/image';
 import RefreshButton from './refresh-button';
 import { seed } from '@/lib/seed';
 
 export default async function Table() {
-  let users;
+  let data;
   let startTime = Date.now();
+
   try {
-    users = await db.select().from(UsersTable);
+    data = await sql`SELECT * FROM users`;
   } catch (e: any) {
     if (e.message === `relation "users" does not exist`) {
-      console.log(
-        'Table does not exist, creating and seeding it with dummy data now...'
-      );
+      console.log('Table does not exist, creating and seeding it with dummy data now...');
       // Table is not created yet
       await seed();
       startTime = Date.now();
-      users = await db.select().from(UsersTable);
+      data = await sql`SELECT * FROM users`;
     } else {
       throw e;
     }
   }
 
+  const { rows: users } = data;
   const duration = Date.now() - startTime;
 
   return (
@@ -36,28 +36,35 @@ export default async function Table() {
         </div>
         <RefreshButton />
       </div>
-      <div className="divide-y divide-gray-900/5">
-        {users.map((user) => (
-          <div
-            key={user.name}
-            className="flex items-center justify-between py-3"
-          >
-            <div className="flex items-center space-x-4">
-              <Image
-                src={user.image}
-                alt={user.name}
-                width={48}
-                height={48}
-                className="rounded-full ring-1 ring-gray-900/5"
-              />
-              <div className="space-y-1">
-                <p className="font-medium leading-none">{user.name}</p>
-                <p className="text-sm text-gray-500">{user.email}</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-500">{timeAgo(user.createdAt)}</p>
-          </div>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full">
+          <thead>
+            <tr>
+              <th className="px-4 py-2">Name</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Image</th>
+              <th className="px-4 py-2">Created At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.name} className="bg-white hover:bg-gray-100">
+                <td className="px-4 py-2">{user.name}</td>
+                <td className="px-4 py-2">{user.email}</td>
+                <td className="px-4 py-2">
+                  <Image
+                    src={user.image}
+                    alt={user.name}
+                    width={48}
+                    height={48}
+                    className="rounded-full ring-1 ring-gray-900/5"
+                  />
+                </td>
+                <td className="px-4 py-2">{timeAgo(user.createdAt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
