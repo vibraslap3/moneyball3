@@ -4,6 +4,7 @@
     "position": "position",
     "week": "week",
     "season": "season",
+    "points": "totalPoints",
     "totalPoints": "totalPoints",
     "projectedPoints": "projectedPoints",
     "gamesPlayed": "gamesPlayed",

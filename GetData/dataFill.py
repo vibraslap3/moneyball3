@@ -83,18 +83,39 @@ def get_missing_weeks(player_id):
     conn.close()
 
     return missing_weeks
+
+# Establish a connection to the PostgreSQL database
+conn = psycopg2.connect(host=db_host, database=db_name, user=db_user, password=db_password)
+
+# Create a cursor object to execute SQL queries
+cursor = conn.cursor()
+
+# Query for unique playerIds based on the condition in the given query
+query = """
+    SELECT DISTINCT playerId
+    FROM player_stats
+    WHERE season = 2022
+    GROUP BY playerId
+    HAVING COUNT(DISTINCT week) < 17;
+"""
+cursor.execute(query)
+unique_player_ids = [row[0] for row in cursor.fetchall()]
+
+# Close the cursor and connection
+cursor.close()
+conn.close()
 with open('.\\GetData\\dictionary.json', 'r') as file:
     sql_mapping = json.load(file)
-for p in league.free_agents(size=350):
-    pp.pprint(p.playerId)
-    missing_weeks = get_missing_weeks(p.playerId)
-    pi = league.player_info(playerId=p.playerId)
+# Iterate over each playerId and get missing weeks
+for player_id in unique_player_ids:
+    missing_weeks = get_missing_weeks(player_id)
+    pi = league.player_info(playerId=player_id)
     connectPostgres()
     for mw in missing_weeks: 
         try:
            stats = pi.stats[mw]
            stats['totalPoints'] = pi.stats[mw]['points']
-        except KeyError:
+        except KeyError: 
             stats = {}
         stats['playerId'] = pi.playerId
         stats['playerName'] = pi.name
