@@ -1,0 +1,60 @@
+Fantasy Football Team Managment Anaylsis
+    Functions
+        Draft Analysis
+            Total Points
+            Points Per Game
+            Games Missed
+        Add/Drop Analysis
+            Points gained vs Bench
+            Points gained vs optimal play
+                cost difference vs optimal play
+            Points Lost by Player Drop
+                Wins lost by player drop
+        Sit/Start
+            actual vs optimal points by week heatmap with totals
+        Trade Analysis
+
+    UI
+        Dashboard style website
+        Powerbi or equivilent?
+    Data
+        Player Weekly Stats
+            Per week
+                Get team lineups
+                    write Lineups to Lineups table
+                    Check for existing player data
+                    Get weekly stats and insert
+                Get top 250 free agents
+                    Check for existing player data
+                    Get weekly stats and insert
+        Weekly Team lineups
+            done in player weekly stats
+        Waiver Wire Transactions
+
+    TODO
+        Get all data into postgres db
+        Create heatmaps
+
+Historical Betting Strategy Testing Framework
+    Functions
+        Run various betting strategies against historical odds vs results
+        Football only to start
+    UI
+        Not needed initially
+        Eventually will be tracking weekly data
+        Daily/weekly/historical p/l for selected strategies 
+    Data
+        Last 6 years
+        Football historical stats 
+        Betting odds
+            Moneyline
+            Over/under
+            Props?
+            2 data points, Tuesday at 5pm and 1 hour before game start
+        Strategy Predictions and results
+        strategies
+
+for playerId in unique playerids with record count < 17
+    get weeks player was not on team
+    get data for weeks
+    
