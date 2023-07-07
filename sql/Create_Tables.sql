@@ -147,3 +147,27 @@ CREATE TABLE team_lineups(
     rosterPosition varchar(255),
     playerPosition varchar(10)
 );
+
+-- Activity table
+CREATE TABLE Activity (
+    ActivityId SERIAL PRIMARY KEY,
+    ADateTime TIMESTAMP,
+    AType VARCHAR(255),
+    TeamId INT,
+    PlayerId INT,
+    FabCost INT
+);
+
+-- Team table
+CREATE TABLE Teams (
+    TeamId INT,
+    TeamName VARCHAR(255),
+    Owner VARCHAR(255)
+);
+
+-- GameDates table
+CREATE TABLE GameDates (
+    Year INT,
+    Week INT,
+    StartDate TIMESTAMP
+);

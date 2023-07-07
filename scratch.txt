@@ -30,7 +30,7 @@ Fantasy Football Team Managment Anaylsis
         Weekly Team lineups
             done in player weekly stats
         Waiver Wire Transactions
-
+        Trades
     TODO
         Get all data into postgres db
         Create heatmaps
@@ -57,4 +57,22 @@ Historical Betting Strategy Testing Framework
 for playerId in unique playerids with record count < 17
     get weeks player was not on team
     get data for weeks
-    
+
+
+Activity 
+    ActivityId identity
+    DateTime datetime
+    Type str
+    TeamId int
+    playerId int
+    fabCost int
+
+Team
+    TeamId int
+    TeamName str
+    Owner str
+
+GameDates
+    year int
+    week int
+    startDate datetime
