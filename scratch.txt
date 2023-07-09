@@ -4,6 +4,7 @@ Fantasy Football Team Managment Anaylsis
             Total Points
             Points Per Game
             Games Missed
+                heatmap with checkbox for each option
         Add/Drop Analysis
             Points gained vs Bench
             Points gained vs optimal play
@@ -31,6 +32,8 @@ Fantasy Football Team Managment Anaylsis
             done in player weekly stats
         Waiver Wire Transactions
         Trades
+        draft info
+
     TODO
         Get all data into postgres db
         Create heatmaps
@@ -54,25 +57,13 @@ Historical Betting Strategy Testing Framework
         Strategy Predictions and results
         strategies
 
-for playerId in unique playerids with record count < 17
-    get weeks player was not on team
-    get data for weeks
 
+NEED A RELIABLE AND EASY DATA VISUALIZATION TOOL
+FUCK
 
-Activity 
-    ActivityId identity
-    DateTime datetime
-    Type str
-    TeamId int
-    playerId int
-    fabCost int
-
-Team
-    TeamId int
-    TeamName str
-    Owner str
-
-GameDates
-    year int
-    week int
-    startDate datetime
+TODO
+    Combine all data aq into one file so yearly data can be aquired in one Run
+        include team data and gamedates
+        game dates might need to be manual
+    Add draft data to data aq
+    

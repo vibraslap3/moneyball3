@@ -39,3 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 
 .vscode
+moneyball3.session.sql

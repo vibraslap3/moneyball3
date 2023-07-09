@@ -43,10 +43,10 @@ def sql_dict(dict1, dict2):
         dict3[key1B] = value1
     return dict3
 
-with open('dictionary.json', 'r') as file:
+with open('.\\GetData\\dictionary.json', 'r') as file:
     sql_mapping = json.load(file)
 league = League(league_id=684556, year=draftYear, espn_s2='AEAfGvrTc9vkVt9%2BGTv6QxAb3nMwxomk8OcZsvEtbUEJbJAvYJHYH3byAdbZprQEFSzqyjphYlS3bQNSZo1a5WVYzgrNsxp7%2Bc5JD7vQzCZP25a%2FIHXUTlTa3RXMA9YnCDTPlu%2FQPWGF51MZyE6wNkesv%2F5RxPuOUcjP%2FqU%2FY3XPAEG3ZidG0E4OIN4KYzucffAPHW7nxoMLcwhwzbY594d7v6GTqqAlsGG0evuj9YA9F2QmrgV5%2Bu2XkKSNorEGwQ1ROgd17S6VW7ia0bh7UwSU', swid='{FD137FF0-20E0-4529-A766-93B377CB9B98}')
 pp = pprint.PrettyPrinter(width=41, compact=True)
 
-fa = league.free_agents(week=6, size=50)
+fa = league.free_agents(size=350)
 print(fa)

@@ -2,6 +2,7 @@ CREATE TABLE player_stats (
 	playerId integer,
 	playerName varchar(255),
     position varchar(255),
+    year integer,
 	week integer,
     season integer,
 	totalPoints FLOAT,
@@ -170,4 +171,21 @@ CREATE TABLE GameDates (
     Year INT,
     Week INT,
     StartDate TIMESTAMP
+);
+
+-- Player table
+CREATE TABLE Players (
+    PlayerId INT,
+    PlayerName VARCHAR(255),
+    Position VARCHAR(255),
+    proTeam VARCHAR(255)
+);
+
+CREATE TABLE Draft_data (
+    year int,
+    overallpick int,
+    round int,
+    pick int,
+    playerId int,
+    fantasyOwner int
 );
