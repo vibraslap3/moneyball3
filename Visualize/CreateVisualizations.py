@@ -171,13 +171,12 @@ def totalPointsDraftHeatmapRankScale():
     #check for player name in top 20
     # if not found, rank them lowest
     ranking = {}
-    for pos in ['QB','RB','WR','TE','K','DEF']:
+    for pos in ['QB','RB','WR','TE','K','D/ST']:
         query = f"""select playerName, sum(totalPoints)
             from player_stats
             where season = {year} AND position = '{pos}' and totalpoints IS NOT NULL
             group by playerName 
-            order by sum(totalPoints) desc
-            limit 20"""
+            order by sum(totalPoints) desc"""
         r = run_query(query)
         posranks = {}
         for i in range(len(r)):
@@ -188,24 +187,20 @@ def totalPointsDraftHeatmapRankScale():
         ranking[pos] = posranks
     pp.pprint(ranking)
     for p in picks:
-        try:
-            rank = ranking[p[4]][p[3]]
-            rating = 21 - rank
-        except KeyError:
-            rank = 20
+        rank = ranking[p[4]][p[3]]
+        if rank > 20:
             rating = 1
+        else:
+            rating = 21 - rank
         if thisRound == p[1]:
-            
             roundPicks.append(p[3]+"\n"+p[4]+"#"+str(rank))
             roundValues.append(rating)
-
         else:
             if roundPicks != []:
                 pickList.append(roundPicks)
                 valuesList.append(roundValues)
             roundPicks = [p[3]+"\n"+p[4]+"#"+str(rank)]
             totalPoints = rating
-
             roundValues = [totalPoints]
             thisRound = p[1]
     if roundPicks != []:
@@ -213,7 +208,6 @@ def totalPointsDraftHeatmapRankScale():
         valuesList.append(roundValues)
     
     closePostgres()
-
     sns.set_theme(style="white")
     for i in range(14):
         if i % 2 == 1:
@@ -256,14 +250,13 @@ def totalPointsDraftHeatmapPPGRankScale():
     #check for player name in top 20
     # if not found, rank them lowest
     ranking = {}
-    for pos in ['QB','RB','WR','TE','K','DEF']:
+    for pos in ['QB','RB','WR','TE','K','D/ST']:
         query = f"""select playerName, (sum(totalPoints)/sum(gamesplayed)) as PPG
             from player_stats
             where season = {year} AND position = '{pos}' and totalpoints IS NOT NULL
             group by playerName 
-            HAVING(sum(gamesplayed) >= 8)
-            order by PPG desc
-            limit 20"""
+            HAVING sum(gamesplayed) > 8
+            order by PPG desc"""
         r = run_query(query)
         posranks = {}
         for i in range(len(r)):
@@ -276,24 +269,26 @@ def totalPointsDraftHeatmapPPGRankScale():
     for p in picks:
         try:
             rank = ranking[p[4]][p[3]]
-            rating = 21 - rank
-        except KeyError:
-            rank = 20
+        except:
+            rank = 100
+        if rank > 20:
             rating = 1
-        if thisRound == p[1]:
-            
+        else:
+            rating = 21 - rank
+        if p[4] == 'WR':
+            rank = int(rank*2)
+        if thisRound == p[1]: 
             roundPicks.append(p[3]+"\n"+p[4]+"#"+str(rank))
             roundValues.append(rating)
-
         else:
             if roundPicks != []:
                 pickList.append(roundPicks)
                 valuesList.append(roundValues)
             roundPicks = [p[3]+"\n"+p[4]+"#"+str(rank)]
             totalPoints = rating
-
             roundValues = [totalPoints]
             thisRound = p[1]
+
     if roundPicks != []:
         pickList.append(roundPicks)
         valuesList.append(roundValues)
@@ -318,7 +313,7 @@ def totalPointsDraftHeatmapPPGRankScale():
     hm = sns.heatmap(d,annot=r, cmap=cmap, vmin=1, vmax=20, center=10, linewidths=.5, cbar_kws={"shrink": .5}, fmt='')
     fig = hm.get_figure()
     fig.savefig(".\\visualize\\visuals\\DraftMatrixPPGRank.png")
-
+totalPointsDraftHeatmapPPGRankScale()
 def DraftGamesPlayedHeatmap():
     picksQuery = f"""SELECT d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName, sum(s.totalpoints) as total, sum(s.gamesplayed) as gamesplayed, (sum(s.totalpoints)/sum(s.gamesplayed)) as ppg
     FROM draft_data d
@@ -375,14 +370,3 @@ def DraftGamesPlayedHeatmap():
     hm = sns.heatmap(d,annot=r, cmap=cmap, vmin=1, vmax=17, center=12, linewidths=.5, cbar_kws={"shrink": .5}, fmt='')
     fig = hm.get_figure()
     fig.savefig(".\\visualize\\visuals\\DraftMatrixGamesPlayed.png")
-DraftGamesPlayedHeatmap()
-"""
-For each position
-    get top 32 players for each role, (64 for WR))
-    heatmap by ranking
-    create scale
-        0-mid set mid = 0.5
-        mid-max set max = 1.0 
-
-
-"""
