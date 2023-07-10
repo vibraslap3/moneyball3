@@ -16,13 +16,13 @@ GROUP BY a.playerid, t.owner, a.adatetime, ps.playername, a.fabcost
 ORDER BY sum(ps.totalpoints);
 
 --standard ppg for drafted players
-SELECT d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName, sum(s.totalpoints) as total, sum(s.gamesplayed) as gamesplayed, (sum(s.totalpoints)/sum(s.gamesplayed))as ppg
+SELECT d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName, sum(s.totalpoints) as total, COALESCE(sum(s.gamesplayed),0) as gamesplayed, COALESCE((sum(s.totalpoints)/sum(s.gamesplayed)),0)as ppg
 FROM draft_data d
 JOIN player_stats s ON d.playerid = s.playerid and d.year = s.season
 join players p on d.playerid = p.playerid
 join Teams t on d.fantasyowner = t.teamid
 
-WHERE s.year = 2022 
+WHERE s.season = 2021
 group by d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName
 order by round, pick;
 

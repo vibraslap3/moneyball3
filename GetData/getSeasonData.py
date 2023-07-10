@@ -302,10 +302,10 @@ def getFaData():
             insert_record(newStats, 'player_stats')
 
 
-getPlayerStats()
-getFaData()
-fillData()
+#getPlayerStats()
+#getFaData()
+#fillData()
 # getTeams()
 # getActivities()
-# getDraft()
+getDraft()
 # getPlayerData()

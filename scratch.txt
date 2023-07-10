@@ -59,11 +59,10 @@ Historical Betting Strategy Testing Framework
 
 
 NEED A RELIABLE AND EASY DATA VISUALIZATION TOOL
-FUCK
 
-TODO
-    Combine all data aq into one file so yearly data can be aquired in one Run
-        include team data and gamedates
-        game dates might need to be manual
-    Add draft data to data aq
-    
+
+
+refactor heatmap code
+    copy foramtting to other heatmaps
+Start on sit start / add drop stats
+
