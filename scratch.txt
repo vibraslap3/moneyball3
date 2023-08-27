@@ -6,13 +6,16 @@ Fantasy Football Team Managment Anaylsis
             Games Missed
                 heatmap with checkbox for each option
         Add/Drop Analysis
-            Points gained vs Bench
-            Points gained vs optimal play
-                cost difference vs optimal play
+            points scored per fabcost
+
+            
             Points Lost by Player Drop
                 Wins lost by player drop
         Sit/Start
+            Points gained vs optimal play, games lost as result
+                cost difference vs optimal play
             actual vs optimal points by week heatmap with totals
+            
         Trade Analysis
 
     UI
@@ -57,12 +60,19 @@ Historical Betting Strategy Testing Framework
         Strategy Predictions and results
         strategies
 
+    if go_commercial, will need handlers for getting data from other fantasy providers than espn
+
 
 NEED A RELIABLE AND EASY DATA VISUALIZATION TOOL
 
 
 
-refactor heatmap code
-    copy foramtting to other heatmaps
+fix 2021 and 2020 data
+double 
 Start on sit start / add drop stats
+
+TOTAL POINTS EARNED IN FIRST 6(OR 3 OR 4) ROUNDS BY DRAFT Position
+ALSO BY TEAM Owner
+
+
 

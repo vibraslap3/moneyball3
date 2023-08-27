@@ -3,7 +3,7 @@ import pprint
 import csv
 import psycopg2
 import json
-draftYear = 2022
+draftYear = 2020
 def insert_record(data, table_name):
     # Database connection details
     db_host = 'ep-dark-cloud-064315-pooler.us-east-1.postgres.vercel-storage.com'
@@ -49,4 +49,18 @@ league = League(league_id=684556, year=draftYear, espn_s2='AEAfGvrTc9vkVt9%2BGTv
 pp = pprint.PrettyPrinter(width=41, compact=True)
 
 fa = league.free_agents(size=350)
-print(fa)
+for l in fa:
+    for s in l.stats:
+        try:
+            stats = l.stats[s]["breakdown"]
+        except KeyError:
+            stats = {}
+        stats['playerId'] = l.playerId
+        stats['playerName'] = l.name
+        stats['week'] = s+1
+        stats['season'] = draftYear
+        stats['totalPoints'] = l.points
+        stats['projectedPoints'] = l.projected_points
+        stats['position'] = l.position
+        newStats = sql_dict(sql_mapping, stats)
+        insert_record(newStats, 'player_stats')

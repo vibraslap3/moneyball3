@@ -5,7 +5,7 @@ import pprint
 import seaborn as sns
 import matplotlib.pyplot as plt
 import psycopg2
-year = 2021
+year = 2020
 
 pp = pprint.PrettyPrinter(width=41, compact=True)
 def connectPostgres(): # Database connection details
@@ -33,13 +33,12 @@ def run_query(query):
     data = [row for row in cursor.fetchall()]
     return data
 
-picksQuery = f"""SELECT d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName, sum(s.totalpoints) as total, COALESCE(sum(s.gamesplayed),0) as gamesplayed, COALESCE((sum(s.totalpoints)/sum(s.gamesplayed)),0)as ppg
+picksQuery = f"""SELECT d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName, COALESCE(sum(s.totalpoints),0) as total, COALESCE(sum(s.gamesplayed),0) as gamesplayed, COALESCE((sum(s.totalpoints)/NULLIF(COALESCE(sum(s.gamesplayed),0),0)),0)as ppg
 FROM draft_data d
-JOIN player_stats s ON d.playerid = s.playerid and d.year = s.season
+LEFT JOIN player_stats s ON d.playerid = s.playerid and d.year = s.season
 join players p on d.playerid = p.playerid
 join Teams t on d.fantasyowner = t.teamid
-
-WHERE s.season = 2021
+WHERE d.year = {year} 
 group by d.overallpick, d.round, d.pick, p.playername, p.Position, t.TeamName
 order by round, pick;"""
 def createVisual(grid,values,teamnames,title,vmin,vmax,center):
@@ -51,15 +50,8 @@ def createVisual(grid,values,teamnames,title,vmin,vmax,center):
     d = pd.DataFrame(values,dtype=float)
     r = pd.DataFrame(grid)
 
-    # Set up the matplotlib figure
-    f, ax = plt.subplots(figsize=(40, 11))
-
-    # Generate a custom diverging colormap
     cmap = sns.diverging_palette(11, 130, s=100, l=60,  as_cmap=True)
-
-    # Draw the heatmap with the mask and correct aspect ratio
     sns.set(rc={'axes.facecolor':'dimgrey', 'figure.facecolor':'dimgrey'})
-
     fig, ax = plt.subplots(figsize=(36, 12))
     hm = sns.heatmap(d,annot=r, cmap=cmap, vmin=vmin, vmax=vmax, center=center, linewidths=.5, linecolor="dimgrey", cbar=False, fmt='')
     hm.set_xticklabels(teamnames, color="white",fontsize="14")
@@ -85,6 +77,7 @@ def totalPointsDraftHeatmap():
         if thisRound == p[1]:
             roundPicks.append(p[3]+"\n"+str(round(p[6],2)))
             roundValues.append(p[6])
+            print(p[3]+"\n"+str(round(p[6],2)))
 
         else:
             if roundPicks != []:
@@ -174,6 +167,8 @@ def totalPointsDraftHeatmapRankScale():
             rating = 1
         else:
             rating = 21 - rank
+        if p[4] == 'WR':
+            rank = int(rank*2)
         if thisRound == p[1]:
             roundPicks.append(p[3]+"\n"+p[4]+"#"+str(rank))
             roundValues.append(rating)
@@ -190,7 +185,7 @@ def totalPointsDraftHeatmapRankScale():
         valuesList.append(roundValues)
     
     closePostgres()
-    title = f"Points Per Game Ranking Draft Heatmap {year}"
+    title = f"Total Points Ranking Draft Heatmap {year}"
     createVisual(pickList,valuesList,teamnames,title,1,20,10)
 
 def ppgDraftHeatmapRankScale():
@@ -250,7 +245,7 @@ def ppgDraftHeatmapRankScale():
     
     closePostgres()
     
-    title = f"Total Points Ranking Draft Heatmap {year}"
+    title = f"Points Per Game Ranking Draft Heatmap {year}"
     createVisual(pickList,valuesList,teamnames,title,1,20,10)
 
 def DraftGamesPlayedHeatmap():
@@ -264,6 +259,8 @@ def DraftGamesPlayedHeatmap():
     closePostgres()
     thisRound = 0
     for p in picks:
+        if p[0] < 17:
+            teamnames.append(p[5])
         if thisRound == p[1]:
             roundPicks.append(p[3]+"\n"+str(round(p[7],2)))
             roundValues.append(p[7])
@@ -282,7 +279,7 @@ def DraftGamesPlayedHeatmap():
         valuesList.append(roundValues)
 
     
-    title = f"Total Games Played Ranking Draft Heatmap {year}"
+    title = f"Total Games Played Draft Heatmap {year}"
     createVisual(pickList,valuesList,teamnames,title,1,17,12)
 
 totalPointsDraftHeatmap()

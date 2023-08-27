@@ -4,12 +4,13 @@ import datetime
 import json
 import psycopg2
 
-draftYear = 2021
+draftYear = 2020
 cursor = None
 conn = None
 pp = pprint.PrettyPrinter(width=41, compact=True)
 league = League(league_id=684556, year=draftYear, espn_s2='AEAfGvrTc9vkVt9%2BGTv6QxAb3nMwxomk8OcZsvEtbUEJbJAvYJHYH3byAdbZprQEFSzqyjphYlS3bQNSZo1a5WVYzgrNsxp7%2Bc5JD7vQzCZP25a%2FIHXUTlTa3RXMA9YnCDTPlu%2FQPWGF51MZyE6wNkesv%2F5RxPuOUcjP%2FqU%2FY3XPAEG3ZidG0E4OIN4KYzucffAPHW7nxoMLcwhwzbY594d7v6GTqqAlsGG0evuj9YA9F2QmrgV5%2Bu2XkKSNorEGwQ1ROgd17S6VW7ia0bh7UwSU', swid='{FD137FF0-20E0-4529-A766-93B377CB9B98}')
-
+with open('.\\GetData\\dictionary.json', 'r') as file:
+    sql_mapping = json.load(file)
 
 def sql_dict(dict1, dict2):
     dict3 = {}
@@ -58,6 +59,7 @@ def insert_record(data, table_name):
 
     # Execute the query with the values from the dictionary
     cursor.execute(query, tuple(record_data.values()))
+    print(f'inserted {values[0:4]}')
     conn.commit()
 
 def run_query(query):
@@ -78,12 +80,7 @@ def sql_dict(dict1, dict2):
 
 
 def get_missing_weeks(player_id):
-    # Establish a connection to the PostgreSQL database
-    conn = psycopg2.connect(host=db_host, database=db_name, user=db_user, password=db_password)
-
-    # Create a cursor object to execute SQL queries
-    cursor = conn.cursor()
-
+    connectPostgres()
     # Query the table for missing weeks
     query = f"""
         SELECT DISTINCT week
@@ -91,16 +88,12 @@ def get_missing_weeks(player_id):
         WHERE playerId = {player_id}
         ORDER BY week;
     """
-    cursor.execute(query)
-    existing_weeks = [row[0] for row in cursor.fetchall()]
+    existing_weeks = run_query(query)
 
     # Generate the list of missing weeks
     all_weeks = list(range(1, 18))  # Assuming 17 weeks in a season
     missing_weeks = [week for week in all_weeks if week not in existing_weeks]
-
-    # Close the cursor and connection
-    cursor.close()
-    conn.close()
+    closePostgres()
 
     return missing_weeks
     
@@ -146,10 +139,15 @@ def getPlayerData():
     print('getting player data')
     connectPostgres()
     query = f"""
-        SELECT DISTINCT playerId
+        SELECT distinct(player_stats.playerid)
         FROM player_stats
-        WHERE season = {draftYear}
-        GROUP BY playerId;
+        LEFT JOIN players ON player_stats.playerid = players.playerid
+        WHERE players.playerid IS NULL
+        UNION
+        SELECT distinct(draft_data.playerid)
+        FROM draft_data
+        LEFT JOIN players ON draft_data.playerid = players.playerid
+        WHERE players.playerid IS NULL
     """
     unique_player_ids = run_query(query)
     for player_id in unique_player_ids:
@@ -219,8 +217,6 @@ def getTeams():
 def getPlayerStats():
     print('getting player stats')
     connectPostgres()
-    with open('.\\GetData\\dictionary.json', 'r') as file:
-        sql_mapping = json.load(file)
     league = League(league_id=684556, year=draftYear, espn_s2='AEAfGvrTc9vkVt9%2BGTv6QxAb3nMwxomk8OcZsvEtbUEJbJAvYJHYH3byAdbZprQEFSzqyjphYlS3bQNSZo1a5WVYzgrNsxp7%2Bc5JD7vQzCZP25a%2FIHXUTlTa3RXMA9YnCDTPlu%2FQPWGF51MZyE6wNkesv%2F5RxPuOUcjP%2FqU%2FY3XPAEG3ZidG0E4OIN4KYzucffAPHW7nxoMLcwhwzbY594d7v6GTqqAlsGG0evuj9YA9F2QmrgV5%2Bu2XkKSNorEGwQ1ROgd17S6VW7ia0bh7UwSU', swid='{FD137FF0-20E0-4529-A766-93B377CB9B98}')
     pp = pprint.PrettyPrinter(width=41, compact=True)
 
@@ -284,28 +280,45 @@ def getPlayerStats():
     print('done')
 
 def getFaData():
+    connectPostgres()
     fa = league.free_agents(size=350)
-    for l in fa:
-        for s in l.stats:
-            try:
-                stats = s["breakdown"]
-            except KeyError:
-                stats = {}
-            stats['playerId'] = l.playerId
-            stats['playerName'] = l.name
-            stats['week'] = w
-            stats['season'] = draftYear
-            stats['totalPoints'] = l.points
-            stats['projectedPoints'] = l.projected_points
-            stats['position'] = l.position
-            newStats = sql_dict(sql_mapping, stats)
-            insert_record(newStats, 'player_stats')
-
-
+    if draftYear > 2021:
+        for l in fa:
+            for s in l.stats:
+                try:
+                    stats = s["breakdown"]
+                except KeyError:
+                    stats = {}
+                stats['playerId'] = l.playerId
+                stats['playerName'] = l.name
+                stats['week'] = s+1
+                stats['season'] = draftYear
+                stats['totalPoints'] = l.points
+                stats['projectedPoints'] = l.projected_points
+                stats['position'] = l.position
+                newStats = sql_dict(sql_mapping, stats)
+                insert_record(newStats, 'player_stats')
+    else:
+        for l in fa:
+            for s in l.stats:
+                try:
+                    stats = l.stats[s]["breakdown"]
+                except KeyError:
+                    stats = {}
+                stats['playerId'] = l.playerId
+                stats['playerName'] = l.name
+                stats['week'] = s+1
+                stats['season'] = draftYear
+                stats['totalPoints'] = l.points
+                stats['projectedPoints'] = l.projected_points
+                stats['position'] = l.position
+                newStats = sql_dict(sql_mapping, stats)
+                insert_record(newStats, 'player_stats')
+    closePostgres()
 #getPlayerStats()
-#getFaData()
-#fillData()
+getFaData()
+# fillData()
 # getTeams()
 # getActivities()
-getDraft()
+# getDraft()
 # getPlayerData()
