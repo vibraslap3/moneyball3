@@ -5,7 +5,7 @@ import pprint
 import seaborn as sns
 import matplotlib.pyplot as plt
 import psycopg2
-year = 2020
+year = 2023
 
 pp = pprint.PrettyPrinter(width=41, compact=True)
 def connectPostgres(): # Database connection details
@@ -150,7 +150,7 @@ def totalPointsDraftHeatmapRankScale():
         posranks = {}
         for i in range(len(r)):
             if pos == 'WR':
-                posranks[r[i][0]] = i+0.5
+                posranks[r[i][0]] = (i+1)*0.5
             else:
                 posranks[r[i][0]] = i+1
         ranking[pos] = posranks
@@ -208,7 +208,7 @@ def ppgDraftHeatmapRankScale():
         posranks = {}
         for i in range(len(r)):
             if pos == 'WR':
-                posranks[r[i][0]] = i+0.5
+                posranks[r[i][0]] =  (i+1)*0.5
             else:
                 posranks[r[i][0]] = i+1
         ranking[pos] = posranks
@@ -282,9 +282,9 @@ def DraftGamesPlayedHeatmap():
     title = f"Total Games Played Draft Heatmap {year}"
     createVisual(pickList,valuesList,teamnames,title,1,17,12)
 
-totalPointsDraftHeatmap()
+# totalPointsDraftHeatmap()
 totalPointsDraftHeatmapRankScale()
-ppgDraftHeatmap()
+# ppgDraftHeatmap()
 ppgDraftHeatmapRankScale()
-DraftGamesPlayedHeatmap()
+# DraftGamesPlayedHeatmap()
 

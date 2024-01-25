@@ -4,7 +4,7 @@ import datetime
 import json
 import psycopg2
 
-draftYear = 2020
+draftYear = 2023
 cursor = None
 conn = None
 pp = pprint.PrettyPrinter(width=41, compact=True)
@@ -221,10 +221,12 @@ def getPlayerStats():
     pp = pprint.PrettyPrinter(width=41, compact=True)
 
     for w in range(1, 18):
-        pp.pprint(league.box_scores(w)) 
+        
+        scores = league.box_scores(w)
+        pp.pprint(scores) 
         for g in range(0,8):
-            homeTeam = league.box_scores(w)[g].home_team.team_id
-            for l in league.box_scores(w)[g].home_lineup:
+            homeTeam = scores[g].home_team.team_id
+            for l in scores[g].home_lineup:
                 try:
                     stats = l.stats[w]["breakdown"]
                 except KeyError:
@@ -248,10 +250,10 @@ def getPlayerStats():
                 print(lineup)
                 insert_record(lineup, 'team_lineups')
             try:
-                awayTeam = league.box_scores(w)[g].away_team.team_id
+                awayTeam = scores[g].away_team.team_id
             except AttributeError:
                 continue
-            for a in league.box_scores(w)[g].away_lineup:
+            for a in scores[g].away_lineup:
                 try:
                     stats = a.stats[w]["breakdown"]
                 except KeyError:
@@ -282,7 +284,7 @@ def getPlayerStats():
 def getFaData():
     connectPostgres()
     fa = league.free_agents(size=350)
-    if draftYear > 2021:
+    if draftYear < 2021:
         for l in fa:
             for s in l.stats:
                 try:
@@ -316,9 +318,9 @@ def getFaData():
                 insert_record(newStats, 'player_stats')
     closePostgres()
 #getPlayerStats()
-getFaData()
-# fillData()
-# getTeams()
-# getActivities()
-# getDraft()
-# getPlayerData()
+#getFaData()
+fillData()
+getTeams()
+getActivities()
+getDraft()
+getPlayerData()
